@@ -1,0 +1,80 @@
+﻿@model StudentApp.Models.Class
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<h2>Create</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Class</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.ClassName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.ClassName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ClassName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" /><button type="button" id="btn-class">Load Class List</button>
+                <table id="class-table" border="1" style="width:20%; margin-top: 20px; display: none;">
+                    <thead>
+                        <tr>
+                            <th>Class Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be dynamically appended here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index","")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        LoadClassList();
+        $('#btn-class').on('click', function () {
+            LoadClassList();
+        });
+    });
+    function LoadClassList() {
+        $.ajax({
+            url: '/ClassUI/GetClassList', // Adjust URL to your API or controller endpoint
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                // Handle success
+                let tableBodyHtml = '';
+                data.forEach(function (classRecord) {
+                    tableBodyHtml += `<tr><td>${classRecord}</td></tr>`;
+                });
+                $('#class-table tbody').html(tableBodyHtml);
+                $('#class-table').show(); // Show the table
+            },
+            error: function (xhr, status, error) {
+                // Handle error
+                console.error('Error loading class list:', error);
+                alert('Failed to load class list. Please try again.');
+            }
+        });
+    }
+</script>
