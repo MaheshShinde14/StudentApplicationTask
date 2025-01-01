@@ -40,7 +40,7 @@ namespace StudentApp.DAL
         }
         public async Task UpdateClass(Class classdata)
         {
-            var existingClass = await _db.Classes.FindAsync(classdata);
+            var existingClass = await _db.Classes.FindAsync(classdata.ClassId);
             if (existingClass!=null)
             {
                 existingClass.ClassName = classdata.ClassName;

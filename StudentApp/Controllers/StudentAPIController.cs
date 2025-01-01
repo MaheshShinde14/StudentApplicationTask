@@ -13,8 +13,8 @@ namespace StudentApp.Controllers
 {
     public class StudentAPIController : ApiController
     {
-        private IStudentServiceInterface _studentServiceInterface;
-        private IClassServiceInterface _classInterface;
+        private readonly IStudentServiceInterface _studentServiceInterface;
+        private readonly IClassServiceInterface _classInterface;
 
         public StudentAPIController(IStudentServiceInterface studentServiceInterface, IClassServiceInterface classInterface)
         {

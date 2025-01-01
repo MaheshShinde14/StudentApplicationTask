@@ -14,6 +14,7 @@ namespace StudentApp.BAL
         Task CreateStudent(Student student);
         Task UpdateStudent(Student student);
         Task DeleteStudent(int id);
+        
 
     }
 }
