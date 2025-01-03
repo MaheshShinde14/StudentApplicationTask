@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
+using System.Xml.Linq;
 
 namespace StudentApp.DAL
 {
@@ -14,5 +15,6 @@ namespace StudentApp.DAL
         Task CreateStudent(Student student);
         Task UpdateStudent(Student student);
         Task DeleteStudent(int id);
+        Task<Student> ValidateStudent(string name, string gender);
     }
 }

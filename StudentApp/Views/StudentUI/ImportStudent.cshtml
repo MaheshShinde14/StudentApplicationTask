@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewBag.Title = "ImportStudent";
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<h2>ImportStudent</h2>
+<form id="importForm" enctype="multipart/form-data">
+    <input type="file" id="fileInput" name="file" />
+    <button type="button" id="importButton">Import Students</button>
+</form>
+<div id="message"></div>
+<div id="ValidationMessage"></div>
+<div id="SuccessfullyInsertedCount"></div>
+
+<script>
+    $(document).ready(function () {
+    $('#importButton').click(function () {
+        var formData = new FormData();
+        var file = $('#fileInput')[0].files[0];
+
+        if (!file) {
+            $('#message').text('Please select a file.');
+            return;
+        }
+
+        formData.append('file', file);
+
+        $.ajax({
+            url: 'https://localhost:44367//api/StudentAPI/Import',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                var successMessage = response.SuccessMessage;
+                var validationMessage = response.ValidationMessage;
+                var successfullyInsertedCount = response.SuccessfullyInsertedCount;
+                $('#message').text(successMessage);
+                $('#ValidationMessage').text("Validation Error"+validationMessage);
+                $('#SuccessfullyInsertedCount').text("InsertedCount "+successfullyInsertedCount);
+            },
+            error: function (error) {
+                $('#message').text('Error: ' + error.responseText);
+            }
+        });
+    });
+    });
+
+</script>

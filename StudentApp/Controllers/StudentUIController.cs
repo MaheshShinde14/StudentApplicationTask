@@ -125,5 +125,9 @@ namespace StudentApp.Controllers
             }
             return classList;
         }
+        public async Task<ActionResult> ImportStudent()
+        {
+            return View();
+        }
     }
 }

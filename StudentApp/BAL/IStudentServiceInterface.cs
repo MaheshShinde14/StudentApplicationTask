@@ -14,7 +14,9 @@ namespace StudentApp.BAL
         Task CreateStudent(Student student);
         Task UpdateStudent(Student student);
         Task DeleteStudent(int id);
-        
-
+        //Student validateStudent(string FirstName, string Gender);
+        Task<List<Student>> ReadStudentsFromExcel(string filePath);
+        string validateNameandGender(Student student);
+        Task<object> InsertStudentAfterValidation(List<Student> students);
     }
 }

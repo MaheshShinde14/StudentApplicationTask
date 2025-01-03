@@ -1,11 +1,16 @@
-﻿using StudentApp.BAL;
+﻿using OfficeOpenXml;
+using StudentApp.BAL;
 using StudentApp.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Helpers;
 using System.Web.Http;
 
@@ -54,7 +59,7 @@ namespace StudentApp.Controllers
             return Ok(HttpStatusCode.OK);
         }
 
-        
+
         [HttpPut]
         public async Task<IHttpActionResult> Put(int id, [FromBody] Student student)
         {
@@ -84,6 +89,38 @@ namespace StudentApp.Controllers
 
             await _studentServiceInterface.DeleteStudent(id);
             return StatusCode(HttpStatusCode.NoContent);
+        }
+        [HttpPost]
+        [Route("api/StudentAPI/Import")]
+        public async Task<IHttpActionResult> Import()
+        {
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
+
+                // Check if a file is included in the request
+                if (httpRequest.Files.Count == 0)
+                    return BadRequest("No file uploaded.");
+
+                var postedFile = httpRequest.Files[0];
+                if (postedFile == null || postedFile.ContentLength == 0)
+                    return BadRequest("File is empty.");
+
+                // Save the file to the server
+                var filePath = HttpContext.Current.Server.MapPath("~/Uploads/" + postedFile.FileName);
+                postedFile.SaveAs(filePath);
+
+                // Process the file
+                var students = await _studentServiceInterface.ReadStudentsFromExcel(filePath);
+                var outputMessages = await _studentServiceInterface.InsertStudentAfterValidation(students);
+
+                return Ok(outputMessages);
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
     }
 }

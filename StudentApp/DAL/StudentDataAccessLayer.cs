@@ -1,9 +1,11 @@
-﻿using StudentApp.Models;
+﻿using Microsoft.AspNet.Mvc;
+using StudentApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -23,7 +25,7 @@ namespace StudentApp.DAL
             try
             {
                 _db.Students.Add(student);
-                await _db.SaveChangesAsync();
+                _db.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -60,6 +62,10 @@ namespace StudentApp.DAL
             }
             _db.Entry(student).State = EntityState.Modified;
             await _db.SaveChangesAsync();
+        }
+        public async Task<Student> ValidateStudent(string name, string gender)
+        {
+            return await _db.Students.FirstOrDefaultAsync(s => s.FirstName == name && s.Gender == gender);
         }
     }
 }
