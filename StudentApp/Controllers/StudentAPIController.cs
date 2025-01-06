@@ -94,11 +94,11 @@ namespace StudentApp.Controllers
         [Route("api/StudentAPI/Import")]
         public async Task<IHttpActionResult> Import()
         {
+            string successMessage = String.Empty;
             try
             {
                 var httpRequest = HttpContext.Current.Request;
 
-                // Check if a file is included in the request
                 if (httpRequest.Files.Count == 0)
                     return BadRequest("No file uploaded.");
 
@@ -106,16 +106,12 @@ namespace StudentApp.Controllers
                 if (postedFile == null || postedFile.ContentLength == 0)
                     return BadRequest("File is empty.");
 
-                // Save the file to the server
                 var filePath = HttpContext.Current.Server.MapPath("~/Uploads/" + postedFile.FileName);
                 postedFile.SaveAs(filePath);
-
-                // Process the file
                 var students = await _studentServiceInterface.ReadStudentsFromExcel(filePath);
-                var outputMessages = await _studentServiceInterface.InsertStudentAfterValidation(students);
-
-                return Ok(outputMessages);
-
+                var outputMessage = await _studentServiceInterface.InsertStudentAfterValidation(students);
+                
+                return Ok(outputMessage);
             }
             catch (Exception ex)
             {

@@ -342,6 +342,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Class.cs" />
     <Compile Include="Models\DbContextClass.cs" />
+    <Compile Include="Models\Dto\ResultMessage.cs" />
     <Compile Include="Models\Student.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

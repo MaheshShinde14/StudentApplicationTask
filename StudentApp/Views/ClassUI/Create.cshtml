@@ -68,10 +68,9 @@
                     tableBodyHtml += `<tr><td>${classRecord}</td></tr>`;
                 });
                 $('#class-table tbody').html(tableBodyHtml);
-                $('#class-table').show(); // Show the table
+                $('#class-table').show(); 
             },
-            error: function (xhr, status, error) {
-                // Handle error
+            error: function (status, error) {
                 console.error('Error loading class list:', error);
                 alert('Failed to load class list. Please try again.');
             }

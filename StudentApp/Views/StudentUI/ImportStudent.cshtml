@@ -13,7 +13,6 @@
     <button type="button" id="importButton">Import Students</button>
 </form>
 <div id="message"></div>
-<div id="ValidationMessage"></div>
 <div id="SuccessfullyInsertedCount"></div>
 
 <script>
@@ -37,10 +36,9 @@
             processData: false,
             success: function (response) {
                 var successMessage = response.SuccessMessage;
-                var validationMessage = response.ValidationMessage;
-                var successfullyInsertedCount = response.SuccessfullyInsertedCount;
+                var validationMessage = response.Message;
+                var successfullyInsertedCount = response.Count;
                 $('#message').text(successMessage);
-                $('#ValidationMessage').text("Validation Error"+validationMessage);
                 $('#SuccessfullyInsertedCount').text("InsertedCount "+successfullyInsertedCount);
             },
             error: function (error) {

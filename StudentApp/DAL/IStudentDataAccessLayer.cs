@@ -15,6 +15,6 @@ namespace StudentApp.DAL
         Task CreateStudent(Student student);
         Task UpdateStudent(Student student);
         Task DeleteStudent(int id);
-        Task<Student> ValidateStudent(string name, string gender);
+        Task<bool> BulkStudentInsert(List<Student> students);
     }
 }

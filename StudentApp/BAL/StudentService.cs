@@ -1,6 +1,7 @@
 ﻿using OfficeOpenXml;
 using StudentApp.DAL;
 using StudentApp.Models;
+using StudentApp.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,7 +33,7 @@ namespace StudentApp.BAL
 
         public async Task<IEnumerable<Student>> GetAllStudents()
         {
-           return await _studentDataAccessLayer.GetAllStudents();
+            return await _studentDataAccessLayer.GetAllStudents();
         }
 
         public async Task<Student> GetStudentById(int id)
@@ -48,7 +49,6 @@ namespace StudentApp.BAL
         {
             var students = new List<Student>();
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
             using (var package = new ExcelPackage(new FileInfo(filePath)))
             {
                 var worksheet = package.Workbook.Worksheets[0];
@@ -68,71 +68,45 @@ namespace StudentApp.BAL
                     students.Add(student);
                 }
             }
-
             return await Task.FromResult(students);
         }
-        public async Task<object> InsertStudentAfterValidation(List<Student> students)
+        public async Task<ResultMessage> InsertStudentAfterValidation(List<Student> students)
         {
-            string validationMessage = string.Empty;
-            int successCount = 0;
             string successMessage = string.Empty;
-            foreach (var item in students)
-            {
-                var validateStudent = await _studentDataAccessLayer.ValidateStudent(item.FirstName, item.Gender);
+            Regex nameRegex = new Regex(@"^[a-zA-Z\s]+$");
+           
+            var filteredStudents = students
+                .Where(s => nameRegex.IsMatch(s.FirstName)) 
+                .GroupBy(s => new { s.FirstName }).ToList() 
+                .Where(g =>
+                    g.Count() == 1 || 
+                    g.Count() == 2 && g.Select(s => s.Gender).Distinct().Count() > 1 
+                )
+                .SelectMany(g => g) 
+                .ToList();
+            var studentsDbData = await _studentDataAccessLayer.GetAllStudents();
+            filteredStudents = filteredStudents
+                                     .Where(f => !studentsDbData.ToList().Any(db => db.FirstName == f.FirstName && db.Gender == f.Gender))
+                                     .ToList();
 
-                if (validateStudent == null)
+            var result = await _studentDataAccessLayer.BulkStudentInsert(filteredStudents);
+            if(result == true)
+            {
+                filteredStudents.ForEach(x => { successMessage += $"{x.FirstName}'s data saved successfully\n"; });
+                return new ResultMessage
                 {
-                    #region validate name and gender
-                    string isValid = validateNameandGender(item);
-                    #endregion
-                    if (string.IsNullOrEmpty(isValid))
-                    {
-                        await _studentDataAccessLayer.CreateStudent(item);
-                        successCount++;
-                        successMessage += item.FirstName+"Students saved successfully";
-                    }
-                    else
-                    {
-                        validationMessage += isValid + Environment.NewLine;
-                    }
-                }
-                else
+                    Message = successMessage,
+                    Count = filteredStudents.Count
+                };
+            }
+            else
+            {
+                return new ResultMessage
                 {
-                    validationMessage += validateStudent.FirstName + ":already exists in Database" + Environment.NewLine;
-                }
+                    Message = "No records inserted",
+                    Count = 0
+                };
             }
-            if (successMessage == string.Empty)
-            {
-                successMessage = "all records in file already exists in database.";
-            }
-            var responseMessage = new
-            {
-                SuccessMessage = successMessage,
-                ValidationMessage = validationMessage,
-                SuccessfullyInsertedCount = successCount
-            };
-            return responseMessage;
-        }
-        public string validateNameandGender(Student student)
-        {
-            string error = string.Empty;
-            var uniqueCombinations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var uniqueKey = $"{student.FirstName.ToLower()}_{student.Gender.ToLower()}";
-            // Validation: No special characters in the Name
-            if (!Regex.IsMatch(student.FirstName, @"^[a-zA-Z\s]+$"))
-            {
-                error = ($"Invalid Name: {student.FirstName}. Only alphabets and spaces are allowed.");
-            }
-
-            // Validation: Check for duplicate Name and Gender combinations
-
-            if (uniqueCombinations.Contains(uniqueKey))
-            {
-                error = ($"Duplicate entry: Name={student.FirstName}, Gender={student.Gender}");
-            }
-            uniqueCombinations.Add(uniqueKey);
-
-            return error;
         }
     }
 }

@@ -63,9 +63,19 @@ namespace StudentApp.DAL
             _db.Entry(student).State = EntityState.Modified;
             await _db.SaveChangesAsync();
         }
-        public async Task<Student> ValidateStudent(string name, string gender)
+        public async Task<bool> BulkStudentInsert(List<Student> students)
         {
-            return await _db.Students.FirstOrDefaultAsync(s => s.FirstName == name && s.Gender == gender);
+            try
+            {
+                _db.Students.AddRange(students);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Invalid Student");
+                return false;
+            };
         }
     }
 }

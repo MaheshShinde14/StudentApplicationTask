@@ -1,4 +1,5 @@
 ﻿using StudentApp.Models;
+using StudentApp.Models.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,6 @@ namespace StudentApp.BAL
         Task DeleteStudent(int id);
         //Student validateStudent(string FirstName, string Gender);
         Task<List<Student>> ReadStudentsFromExcel(string filePath);
-        string validateNameandGender(Student student);
-        Task<object> InsertStudentAfterValidation(List<Student> students);
+        Task<ResultMessage> InsertStudentAfterValidation(List<Student> students);
     }
 }
